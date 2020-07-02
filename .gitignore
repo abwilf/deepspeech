@@ -1,0 +1,3 @@
+deepspeech-*
+*.wav
+__pycache__/
