@@ -1,4 +1,4 @@
-# Deepspeech Wrapper
+# Deepspeech Tutorial and Wrapper
 
 ## Usage
 ### CLI
