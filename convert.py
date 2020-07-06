@@ -83,7 +83,7 @@ def get_transcripts(wav_dir, graph_path, scorer_path, out_path):
     pool.imap_unordered(transcribe_wrapper, audio_paths)
     pool.close()
     pool.join()
-
+    print('\n')
     save_pk(out_path, transcripts)
 
 def batch_split(arr, batch_size):
@@ -124,6 +124,7 @@ def split_wavs(wav_dir, seconds_per_batch=30):
     pool.imap_unordered(split_wavs_helper, audio_paths)
     pool.close()
     pool.join()
+    print('\n')
     
     return temp_wav_dir
 
@@ -150,7 +151,7 @@ def convert_wavs(wav_dir, out_path, graph_path=GRAPH_PATH, scorer_path=SCORER_PA
     recombine_partial_transcripts(out_path)
     rmtree(temp_wav_dir)
 
-    print('\nSuccessfully finished transcribing')
+    print('\nSuccessfully finished transcribing.')
 
 if __name__ == '__main__':
     '''
