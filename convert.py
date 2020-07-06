@@ -144,7 +144,7 @@ def recombine_partial_transcripts(out_path):
     save_pk(out_path, full_dict)
 
 
-def main(wav_dir, out_path, graph_path=GRAPH_PATH, scorer_path=SCORER_PATH, seconds_per_batch=30):
+def convert_wavs(wav_dir, out_path, graph_path=GRAPH_PATH, scorer_path=SCORER_PATH, seconds_per_batch=30):
     temp_wav_dir = split_wavs(wav_dir, seconds_per_batch=seconds_per_batch)
     get_transcripts(temp_wav_dir, graph_path, scorer_path, out_path)
     recombine_partial_transcripts(out_path)
@@ -162,5 +162,5 @@ if __name__ == '__main__':
     parser.add_argument('--out_path', type=str, help='Absolute path to the .pk file where the transcripts will be stored')
     args = parser.parse_args()
 
-    main(args.wav_dir, args.out_path)
+    convert_wavs(args.wav_dir, args.out_path)
 

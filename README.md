@@ -17,10 +17,8 @@ python3 convert.py --wav_dir /path/to/wavs --out_path /path/to/transcripts.pk
 
 ### Python
 ```
-from convert import *
+from convert import convert_wavs
 wav_dir = '/z/abwilf/wavs_test'
 out_path = '/z/abwilf/transcripts.pk'
-graph_path = '/z/abwilf/deepspeech/deepspeech-0.7.4-models.pbmm'
-scorer_path = '/z/abwilf/deepspeech/deepspeech-0.7.4-models.scorer'
-get_transcripts(wav_dir, graph_path, scorer_path, out_path)
+convert_wavs(wav_dir, out_path)
 ```
