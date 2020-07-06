@@ -15,9 +15,9 @@ transcripts = {}
 model = None
 p = None
 out_filepath = None
-seconds_per_batch_global = None
 orig_wav_dir = None
 temp_wav_dir = None
+aggressiveness = None
 
 def load_deepspeech_model(graph_path=GRAPH_PATH, scorer_path=SCORER_PATH):
     ds = Model(graph_path)
@@ -68,6 +68,7 @@ def transcribe_wrapper(audio_path):
         save_pk(out_filepath, transcripts)
 
 def get_transcripts(wav_dir, graph_path, scorer_path, out_path):
+    print('\nTranscribing...')
     num_workers = 6
     pool = mp.Pool(num_workers)
 
@@ -86,25 +87,21 @@ def get_transcripts(wav_dir, graph_path, scorer_path, out_path):
     print('\n')
     save_pk(out_path, transcripts)
 
-def batch_split(arr, batch_size):
-    num_batches = np.ceil(arr.shape[0] / batch_size)
-    return [arr[batch_idx*batch_size:(batch_idx+1)*batch_size] for batch_idx in range(int(num_batches))]
-
 def split_wavs_helper(audio_path):
     sample_rate, audio = wav.read(audio_path)
-    audio = batch_split(audio, sample_rate*seconds_per_batch_global)
     id = audio_path.split('/')[-1].split('.')[0]
-    for idx, audio_segment in enumerate(audio):
+    segments, sample_rate, audio_length = vad_segment_generator(audio_path, aggressiveness=aggressiveness)
+    for idx, segment in enumerate(segments):
+        audio_segment = np.frombuffer(segment, dtype=np.int16)
         temp_path = join(temp_wav_dir, f'{id}{DS_SEP}{idx}.wav')
         wav.write(temp_path, sample_rate, audio_segment)
     p.add(1)
 
-def split_wavs(wav_dir, seconds_per_batch=30):
-    print('Splitting wavs into 30 second chunks for transcription...')
-    global seconds_per_batch_global, orig_wav_dir, temp_wav_dir, p
+def split_wavs(wav_dir):
+    print('Splitting wavs into VAD chunks for transcription...')
+    global orig_wav_dir, temp_wav_dir, p
     temp_wav_dir = join(wav_dir, 'temp')
     orig_wav_dir = wav_dir
-    seconds_per_batch_global = seconds_per_batch
 
     rmtree(temp_wav_dir)
     audio_paths = glob.glob(os.path.join(wav_dir, '*'))
@@ -144,9 +141,11 @@ def recombine_partial_transcripts(out_path):
     
     save_pk(out_path, full_dict)
 
+def convert_wavs(wav_dir, out_path, aggressiveness_param, graph_path=GRAPH_PATH, scorer_path=SCORER_PATH):
+    global aggressiveness
+    aggressiveness = aggressiveness_param
 
-def convert_wavs(wav_dir, out_path, graph_path=GRAPH_PATH, scorer_path=SCORER_PATH, seconds_per_batch=30):
-    temp_wav_dir = split_wavs(wav_dir, seconds_per_batch=seconds_per_batch)
+    temp_wav_dir = split_wavs(wav_dir)
     get_transcripts(temp_wav_dir, graph_path, scorer_path, out_path)
     recombine_partial_transcripts(out_path)
     rmtree(temp_wav_dir)
@@ -161,7 +160,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Use deepspeech to transcribe audio')
     parser.add_argument('--wav_dir', type=str, help='Absolute path indicating where the wavs are. Each wav should be of the form /path/to/id.wav')
     parser.add_argument('--out_path', type=str, help='Absolute path to the .pk file where the transcripts will be stored')
+    parser.add_argument('--aggressiveness', type=str, help='How aggressive the VAD algorithm should be.  In range(4)')
     args = parser.parse_args()
 
-    convert_wavs(args.wav_dir, args.out_path)
+    convert_wavs(args.wav_dir, args.out_path, args.aggressiveness)
 
