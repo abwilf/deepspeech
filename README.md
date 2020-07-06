@@ -18,7 +18,7 @@ python3 convert.py --wav_dir /path/to/wavs --out_path /path/to/transcripts.pk
 ### Python
 ```
 from convert import convert_wavs
-wav_dir = '/z/abwilf/wavs_test'
-out_path = '/z/abwilf/transcripts.pk'
+wav_dir = '/path/to/wavs'
+out_path = '/path/to/transcripts.pk'
 convert_wavs(wav_dir, out_path)
 ```
