@@ -3,7 +3,7 @@ from deepspeech import Model
 import glob, argparse
 import multiprocessing.dummy as mp
 from tensorflow.keras.utils import Progbar
-from utils import *
+from ds_utils import *
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 GRAPH_PATH = '/z/abwilf/deepspeech/deepspeech-0.7.4-models.pbmm'
@@ -17,7 +17,7 @@ p = None
 out_filepath = None
 orig_wav_dir = None
 temp_wav_dir = None
-aggressiveness = None
+global_aggressiveness = None
 
 def load_deepspeech_model(graph_path=GRAPH_PATH, scorer_path=SCORER_PATH):
     ds = Model(graph_path)
@@ -78,7 +78,7 @@ def get_transcripts(wav_dir, graph_path, scorer_path, out_path):
     p = Progbar(len(audio_paths))
     out_filepath = out_path
 
-    # for audio_path in audio_paths: # if not multiprocessing capable machine
+    # for audio_path in audio_paths: # if not multiprocessing capable machine or if error not being caught in mp
     #     transcribe_wrapper(audio_path)
 
     pool.imap_unordered(transcribe_wrapper, audio_paths)
@@ -90,7 +90,7 @@ def get_transcripts(wav_dir, graph_path, scorer_path, out_path):
 def split_wavs_helper(audio_path):
     sample_rate, audio = wav.read(audio_path)
     id = audio_path.split('/')[-1].split('.')[0]
-    segments, sample_rate, audio_length = vad_segment_generator(audio_path, aggressiveness=aggressiveness)
+    segments, sample_rate, audio_length = vad_segment_generator(audio_path, aggressiveness=global_aggressiveness)
     for idx, segment in enumerate(segments):
         audio_segment = np.frombuffer(segment, dtype=np.int16)
         temp_path = join(temp_wav_dir, f'{id}{DS_SEP}{idx}.wav')
@@ -106,22 +106,20 @@ def split_wavs(wav_dir):
     rmtree(temp_wav_dir)
     audio_paths = glob.glob(os.path.join(wav_dir, '*'))
     rm_mkdirp(temp_wav_dir, overwrite=True, quiet=True)
-
-    # testing
-    # audio_paths = list(filter(lambda elt: 'Xa086gxLJ3Y' in elt, audio_paths))
-    # print(audio_paths)
+    p = Progbar(len(audio_paths))
 
     # for audio_path in tqdm(audio_paths): # if not multiprocessing capable machine
     #     split_wavs_helper(audio_path)
+    #     i += 1
+    #     if i > 10:
+    #         break
 
-    p = Progbar(len(audio_paths))
     num_workers = 6
     pool = mp.Pool(num_workers)
 
     pool.imap_unordered(split_wavs_helper, audio_paths)
     pool.close()
     pool.join()
-    print('\n')
     
     return temp_wav_dir
 
@@ -141,9 +139,10 @@ def recombine_partial_transcripts(out_path):
     
     save_pk(out_path, full_dict)
 
-def convert_wavs(wav_dir, out_path, aggressiveness_param, graph_path=GRAPH_PATH, scorer_path=SCORER_PATH):
-    global aggressiveness
-    aggressiveness = aggressiveness_param
+def convert_wavs(wav_dir, out_path, aggressiveness, graph_path=GRAPH_PATH, scorer_path=SCORER_PATH):
+    print(f'#### Using deepspeech to convert wavs in {wav_dir} to {out_path} ####')
+    global global_aggressiveness
+    global_aggressiveness = aggressiveness
 
     temp_wav_dir = split_wavs(wav_dir)
     get_transcripts(temp_wav_dir, graph_path, scorer_path, out_path)
@@ -160,7 +159,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Use deepspeech to transcribe audio')
     parser.add_argument('--wav_dir', type=str, help='Absolute path indicating where the wavs are. Each wav should be of the form /path/to/id.wav')
     parser.add_argument('--out_path', type=str, help='Absolute path to the .pk file where the transcripts will be stored')
-    parser.add_argument('--aggressiveness', type=str, help='How aggressive the VAD algorithm should be.  In range(4)')
+    parser.add_argument('--aggressiveness', type=int, default=2, help='How aggressive the VAD algorithm should be.  In range(4). 0 is least, 4 is greatest.')
     args = parser.parse_args()
 
     convert_wavs(args.wav_dir, args.out_path, args.aggressiveness)
