@@ -114,7 +114,8 @@ def split_wavs(wav_dir):
     num_workers = 6
     pool = mp.Pool(num_workers)
 
-    pool.imap_unordered(split_wavs_helper, audio_paths)
+    x = pool.imap_unordered(split_wavs_helper, audio_paths)
+    [elt for elt in x] # forces errors to propagate
     pool.close()
     pool.join()
     
