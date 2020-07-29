@@ -108,11 +108,8 @@ def split_wavs(wav_dir):
     rm_mkdirp(temp_wav_dir, overwrite=True, quiet=True)
     p = Progbar(len(audio_paths))
 
-    # for audio_path in tqdm(audio_paths): # if not multiprocessing capable machine
+    # for audio_path in tqdm(audio_paths): # if not multiprocessing capable machine or an error
     #     split_wavs_helper(audio_path)
-    #     i += 1
-    #     if i > 10:
-    #         break
 
     num_workers = 6
     pool = mp.Pool(num_workers)

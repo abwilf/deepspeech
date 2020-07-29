@@ -1,3 +1,4 @@
 deepspeech-*
 *.wav
 __pycache__/
+.vscode

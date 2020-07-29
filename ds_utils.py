@@ -21,7 +21,7 @@ def read_wave(path):
         sample_width = wf.getsampwidth()
         assert sample_width == 2
         sample_rate = wf.getframerate()
-        assert sample_rate in (8000, 16000, 32000)
+        assert sample_rate in (8000, 16000, 32000), f'sample_rate is {sample_rate} which is not supported'
         frames = wf.getnframes()
         pcm_data = wf.readframes(frames)
         duration = frames / sample_rate
