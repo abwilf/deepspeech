@@ -78,7 +78,7 @@ def get_transcripts(wav_dir, graph_path, scorer_path, out_path):
     p = Progbar(len(audio_paths))
     out_filepath = out_path
 
-    # for audio_path in audio_paths: # if not multiprocessing capable machine or if error not being caught in mp
+    # for audio_path in tqdm(audio_paths): # if not multiprocessing capable machine or if error not being caught in mp
     #     transcribe_wrapper(audio_path)
 
     pool.imap_unordered(transcribe_wrapper, audio_paths)
@@ -137,7 +137,14 @@ def recombine_partial_transcripts(out_path):
     
     save_pk(out_path, full_dict)
 
-def convert_wavs(wav_dir, out_path, aggressiveness, graph_path=GRAPH_PATH, scorer_path=SCORER_PATH):
+def convert_wavs(wav_dir, out_path, aggressiveness, graph_path=GRAPH_PATH, scorer_path=SCORER_PATH, overwrite=False):
+    if os.path.exists(out_path):
+        if overwrite:
+            rm_file(out_path)
+        else:
+            print(f'Transcripts exist in {out_path} and overwrite=False.  Skipping...')
+            return
+
     print(f'#### Using deepspeech to convert wavs in {wav_dir} to {out_path} ####')
     global global_aggressiveness
     global_aggressiveness = aggressiveness
