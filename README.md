@@ -20,6 +20,6 @@ python3 convert.py --wav_dir /path/to/wavs --out_path /path/to/transcripts.pk
 from convert import convert_wavs
 wav_dir = '/path/to/wavs'
 out_path = '/path/to/transcripts.pk'
-aggressivness =2
+aggressivness = 2
 convert_wavs(wav_dir, out_path, aggressivness)
 ```
