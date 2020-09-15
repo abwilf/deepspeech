@@ -4,7 +4,7 @@ DeepSpeech is a powerful opensource transcription tool.  This repository acts as
 ## Usage
 ### CLI
 ```
-pip install numpy tensorflow-gpu==2.0.0 deepspeech==0.7.4 scipy tqdm webrtcvad
+pip install numpy tensorflow==2.3.0 deepspeech-gpu==0.8.2 scipy tqdm webrtcvad
 curl -LO https://github.com/mozilla/DeepSpeech/releases/download/v0.7.4/deepspeech-0.7.4-models.pbmm
 curl -LO https://github.com/mozilla/DeepSpeech/releases/download/v0.7.4/deepspeech-0.7.4-models.scorer
 ```

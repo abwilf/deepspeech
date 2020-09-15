@@ -241,7 +241,6 @@ def list_gpus():
 
 def save_pk(file_stub, pk, protocol=None):
     filename = file_stub if '.pk' in file_stub else f'{file_stub}.pk'
-    rm_file(filename)
     with open(filename, 'wb') as f:
         pickle.dump(pk, f, protocol=protocol)
     
@@ -346,6 +345,16 @@ def paths_to_mfbs(paths, max_len):
         else:
             mfbs = np.concatenate([mfbs, [zero_pad_to_length(mfb, max_len)]], axis=0)
     return tf.cast(mfbs, tf.float64)
+
+def str2bool(v):
+    if isinstance(v, bool):
+       return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
 
 def destring(y, width=3):
     ''' y is an array with elements in the format '.5;.5;0.'.  Need to turn into nx3 arr'''
