@@ -55,7 +55,10 @@ def transcribe_common(audio_path):
     final_intervals = []
     for start, end in coords:
         if end == -1: # last
-            interval = intervals[start], intervals[start] + (intervals[start] - intervals[start-1])
+            if start == 0: # one word
+                interval = intervals[start], intervals[end]
+            else:
+                interval = intervals[start], intervals[start] + (intervals[start] - intervals[start-1])
             word = ''.join(chars[start:]).strip()
 
         else:
