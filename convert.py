@@ -7,10 +7,6 @@ import multiprocessing.dummy as mp
 from ds_utils import *
 # os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
-# GRAPH_PATH = '/z/abwilf/deepspeech/deepspeech-0.7.4-models.pbmm'
-# SCORER_PATH = '/z/abwilf/deepspeech/deepspeech-0.7.4-models.scorer'
-GRAPH_PATH = '/z/abwilf/deepspeech/deepspeech-0.8.2-models.pbmm'
-SCORER_PATH = '/z/abwilf/deepspeech/deepspeech-0.8.2-models.scorer'
 DS_SEP = '__-__'
 
 # globals for shared multithreading memory
@@ -22,7 +18,7 @@ orig_wav_dir = None
 temp_wav_dir = None
 global_aggressiveness = None
 
-def load_deepspeech_model(graph_path=GRAPH_PATH, scorer_path=SCORER_PATH):
+def load_deepspeech_model(graph_path, scorer_path):
     ds = Model(graph_path)
     ds.enableExternalScorer(scorer_path)
     return ds
@@ -167,7 +163,7 @@ def recombine_partial_transcripts(out_path):
     
     save_pk(out_path, full_dict)
 
-def convert_wavs(wav_dir, out_path, aggressiveness, graph_path=GRAPH_PATH, scorer_path=SCORER_PATH, overwrite=False, temp_wav_dir_in=None):
+def convert_wavs(wav_dir, out_path, aggressiveness, graph_path, scorer_path, overwrite=False, temp_wav_dir_in=None):
     if os.path.exists(out_path):
         if overwrite:
             rm_file(out_path)
@@ -189,14 +185,16 @@ def convert_wavs(wav_dir, out_path, aggressiveness, graph_path=GRAPH_PATH, score
 if __name__ == '__main__':
     '''
     Usage:
-        python3 convert.py --wav_dir /z/abwilf/mosi/full/mosei_wavs --out_path /z/abwilf/transcripts.pk --graph_path /z/abwilf/deepspeech/deepspeech-0.7.4-models.pbmm --scorer_path /z/abwilf/deepspeech/deepspeech-0.7.4-models.scorer
+        python3 convert.py --wav_dir /z/abwilf/mosi/full/mosei_wavs --out_path /z/abwilf/transcripts.pk --graph_path /z/abwilf/deepspeech/deepspeech-0.8.2-models.pbmm --scorer_path /z/abwilf/deepspeech/deepspeech-0.8.2-models.scorer
     '''
     parser = argparse.ArgumentParser(description='Use deepspeech to transcribe audio')
     parser.add_argument('--wav_dir', type=str, help='Absolute path indicating where the wavs are. Each wav should be of the form /path/to/id.wav')
     parser.add_argument('--out_path', type=str, help='Absolute path to the .pk file where the transcripts will be stored')
+    parser.add_argument('--graph_path', type=str, help='Absolute path to the .pbmm file')
+    parser.add_argument('--scorer_path', type=str, help='Absolute path to the .scorer file')
     parser.add_argument('--aggressiveness', type=int, default=2, help='How aggressive the VAD algorithm should be.  In range(4). 0 is least, 4 is greatest.')
     parser.add_argument('--overwrite', type=str2bool, default=False)
     args = parser.parse_args()
 
-    convert_wavs(args.wav_dir, args.out_path, args.aggressiveness, overwrite=args.overwrite)
+    convert_wavs(args.wav_dir, args.out_path, args.aggressiveness, args.graph_path, args.scorer_path, overwrite=args.overwrite)
 

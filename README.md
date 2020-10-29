@@ -5,8 +5,8 @@ DeepSpeech is a powerful opensource transcription tool.  This repository acts as
 ### CLI
 ```
 pip install numpy tensorflow==2.3.0 deepspeech-gpu==0.8.2 scipy tqdm webrtcvad
-curl -LO https://github.com/mozilla/DeepSpeech/releases/download/v0.7.4/deepspeech-0.7.4-models.pbmm
-curl -LO https://github.com/mozilla/DeepSpeech/releases/download/v0.7.4/deepspeech-0.7.4-models.scorer
+curl -LO https://github.com/mozilla/DeepSpeech/releases/download/v0.8.2/deepspeech-0.8.2-models.pbmm
+curl -LO https://github.com/mozilla/DeepSpeech/releases/download/v0.8.2/deepspeech-0.8.2-models.scorer
 ```
 
 Modify `GRAPH_PATH` and `SCORER_PATH` in `convert.py` to match your filepath locations.
