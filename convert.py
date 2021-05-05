@@ -114,7 +114,7 @@ def split_wavs_helper(audio_path):
     segments, sample_rate, audio_length = vad_segment_generator(audio_path, aggressiveness=global_aggressiveness)
     for idx, segment in enumerate(segments):
         audio_segment = np.frombuffer(segment, dtype=np.int16)
-        temp_path = join(temp_wav_dir, f'{id}{DS_SEP}{idx}.wav')
+        temp_path = join(temp_wav_dir, f'{id}[{idx}].wav')
         wav.write(temp_path, sample_rate, audio_segment)
 
 def split_wavs(wav_dir, temp_wav_dir_in=None, multiproc=True, agg_in=None):

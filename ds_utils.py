@@ -9,7 +9,8 @@ from timeit import default_timer as timer
 import collections
 import contextlib
 import wave
-
+import librosa
+import soundfile as sf
 
 def read_wave(path):
     """Reads a .wav file.
@@ -19,8 +20,16 @@ def read_wave(path):
         num_channels = wf.getnchannels()
         assert num_channels == 1
         sample_width = wf.getsampwidth()
-        assert sample_width == 2
+        assert sample_width == 2, 'sample width is '+str(sample_width) + path
         sample_rate = wf.getframerate()
+        if sample_rate != 16000:
+            print('Rewriting b/c sample rate is', sample_rate)
+            x, sr = librosa.load(path)
+            target_sr = 16000
+            x = librosa.resample(x,orig_sr=sr,target_sr=target_sr)
+            sf.write(path, x, target_sr)
+            return read_wave(path)
+
         assert sample_rate in (8000, 16000, 32000), f'sample_rate is {sample_rate} which is not supported'
         frames = wf.getnframes()
         pcm_data = wf.readframes(frames)
